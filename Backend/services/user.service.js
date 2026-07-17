@@ -9,7 +9,7 @@ module.exports.createUser = async ( {
     }
 
     
-    const user =  userModel.create({
+    const user = await userModel.create({
         fullname:{
             firstname,
             lastname
