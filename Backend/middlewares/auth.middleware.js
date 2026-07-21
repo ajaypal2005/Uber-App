@@ -1,5 +1,5 @@
-const userModel = require('../db/models/user.model');
-const blacklisttokenModel = require('../db/models/blacklisttoken.model');
+const userModel = require('../models/user.model');
+const blacklisttokenModel = require('../models/blacklisttoken.model');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
