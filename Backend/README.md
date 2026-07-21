@@ -103,37 +103,26 @@ This endpoint authenticates an existing user with an email address and password.
 
 `POST /captains/register`
 
-This endpoint creates a new captain account. The request body must include a `fullname` object, an `email`, a `password`, and a `vehicle` object.
+This endpoint creates a new captain account.
 
 ### Request Body
 
 ```json
 {
   "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
+    "firstname": "John", // Required, minimum 3 characters
+    "lastname": "Doe" // Optional, minimum 3 characters if provided
   },
-  "email": "john.doe@example.com",
-  "password": "password123",
+  "email": "john.doe@example.com", // Required, valid email
+  "password": "password123", // Required, minimum 6 characters
   "vehicle": {
-    "color": "Red",
-    "plate": "ABC-123",
-    "capacity": 4,
-    "vehicleType": "car"
+    "color": "Red", // Required, minimum 3 characters
+    "plate": "ABC-123", // Required, minimum 3 characters
+    "capacity": 4, // Required, integer, minimum 1
+    "vehicleType": "car" // Required, must be 'car', 'motorcycle', or 'auto'
   }
 }
 ```
-
-### Required Data
-
-- `fullname.firstname` is required and must be at least 3 characters long.
-- `email` is required and must be a valid email address.
-- `password` is required and must be at least 6 characters long.
-- `fullname.lastname` is optional.
-- `vehicle.color` is required and must be at least 3 characters long.
-- `vehicle.plate` is required and must be at least 3 characters long.
-- `vehicle.capacity` is required and must be an integer of at least 1.
-- `vehicle.vehicleType` is required and must be one of `car`, `motorcycle`, or `auto`.
 
 ### Response Codes
 
@@ -145,7 +134,7 @@ This endpoint creates a new captain account. The request body must include a `fu
 
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example-token",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example-token", // JWT token
   "captain": {
     "_id": "6a5f0caad9870bd52892440e",
     "fullname": {
@@ -168,4 +157,97 @@ This endpoint creates a new captain account. The request body must include a `fu
 
 - The route is mounted under `/captains`, so the full endpoint path is `/captains/register`.
 - Passwords are hashed before being stored in the database.
-- The generated token is also set as a cookie.
+- The generated token is also set as an HTTP-only cookie.
+
+## Login Captain
+
+`POST /captains/login`
+
+This endpoint authenticates an existing captain using their email and password.
+
+### Request Body
+
+```json
+{
+  "email": "john.doe@example.com", // Required, valid email
+  "password": "password123" // Required, minimum 6 characters
+}
+```
+
+### Response Codes
+
+- `200 OK`: Login successful. The response includes the generated JWT token and captain data.
+- `400 Bad Request`: Validation failed, required fields missing, or invalid email/password.
+- `500 Internal Server Error`: An unexpected server or database error occurred.
+
+### Success Response Example
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example-token", // JWT token
+  "captain": {
+    "_id": "6a5f0caad9870bd52892440e",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC-123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+### Notes
+
+- The route is mounted under `/captains`, so the full endpoint path is `/captains/login`.
+- The generated token is also set as an HTTP-only cookie.
+
+## Captain Profile
+
+`GET /captains/profile`
+
+This endpoint retrieves the authenticated captain's profile.
+
+### Headers
+
+- `Authorization`: `Bearer <token>` (Optional if token is provided via cookie)
+- `Cookie`: `token=<token>` (Optional if token is provided via Authorization header)
+
+### Response Codes
+
+- `200 OK`: Profile retrieved successfully.
+- `401 Unauthorized`: Token is missing, invalid, or blacklisted.
+- `500 Internal Server Error`: An unexpected server or database error occurred.
+
+### Success Response Example
+
+```json
+{
+  "captain": {
+    "_id": "6a5f0caad9870bd52892440e",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com",
+    "status": "inactive",
+    "vehicle": {
+      "color": "Red",
+      "plate": "ABC-123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+### Notes
+
+- The route is mounted under `/captains`, so the full endpoint path is `/captains/profile`.
+- Requires a valid JWT token.
